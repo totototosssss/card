@@ -65,13 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
         [CHAR_IDS.NYAMA]: { id: CHAR_IDS.NYAMA, displayName: "にゃま", colorClass: "char-nyama", icon: "fas fa-cat", sampleImage: "nyama_art.png", 
             abilities: [
                 { 
-                    name: "にゃんともトリッキー！", 
-                    dialogue: "ふふん、この場の空気、変えちゃうにゃん♪ どうなるかは…お楽しみにゃ！", 
+                    name: "にゃまトリッキー！", 
+                    dialogue: "ふふん、この場の空気、変えちゃう♪ どうなるかは…お楽しみ！", 
                     effectType: "nyama_trickster",
-                    description: "手札左2枚の相性を一時的にランダム変更！(良化/悪化)", icon: "fas fa-random" 
+                    description: "手札左2枚の相性を一時的にランダム変更!(良化/悪化)", icon: "fas fa-random" 
                 },
                 { 
-                    name: "スコア献上、友好ズタズタ", 
+                    name: "応用は効くやん笑", 
                     dialogue: "スコアは欲しいけど…ちょっと嫌われちゃうかもにゃん…えへっ！", 
                     effectType: "nyama_affinity_debuff", baseValue: 10, 
                     description: "コア+10, 全員との結合強度を永続悪化(中)", 
@@ -158,10 +158,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentAffinityData = {}; 
 
     const AFFINITY_DATA_BASE = { 
-        [CHAR_IDS.NYAMA]:    { [CHAR_IDS.NANKU]: 1.3, [CHAR_IDS.SHIROCHAN]: 0.6, [CHAR_IDS.YUUMARU]: 1.2, [CHAR_IDS.SASAMI]: 1.1 },
-        [CHAR_IDS.NANKU]:    { [CHAR_IDS.NYAMA]: 1.3, [CHAR_IDS.SHIROCHAN]: 0.6, [CHAR_IDS.YUUMARU]: 0.7, [CHAR_IDS.SASAMI]: 1.1 },
-        [CHAR_IDS.SHIROCHAN]:{ [CHAR_IDS.NYAMA]: 0.6, [CHAR_IDS.NANKU]: 0.6, [CHAR_IDS.YUUMARU]: 0.8, [CHAR_IDS.SASAMI]: 0.9 },
-        [CHAR_IDS.YUUMARU]:  { [CHAR_IDS.NYAMA]: 1.2, [CHAR_IDS.SHIROCHAN]: 0.8, [CHAR_IDS.NANKU]: 0.7, [CHAR_IDS.SASAMI]: 1.2 },
+        [CHAR_IDS.NYAMA]:    { [CHAR_IDS.NANKU]: 1.3, [CHAR_IDS.SHIROCHAN]: 0.2, [CHAR_IDS.YUUMARU]: 1.2, [CHAR_IDS.SASAMI]: 1.1 },
+        [CHAR_IDS.NANKU]:    { [CHAR_IDS.NYAMA]: 1.3, [CHAR_IDS.SHIROCHAN]: 0.2, [CHAR_IDS.YUUMARU]: 0.7, [CHAR_IDS.SASAMI]: 1.1 },
+        [CHAR_IDS.SHIROCHAN]:{ [CHAR_IDS.NYAMA]: 0.2, [CHAR_IDS.NANKU]: 0.2, [CHAR_IDS.YUUMARU]: 0.2, [CHAR_IDS.SASAMI]: 0.6 },
+        [CHAR_IDS.YUUMARU]:  { [CHAR_IDS.NYAMA]: 1.3, [CHAR_IDS.SHIROCHAN]: 0.2, [CHAR_IDS.NANKU]: 0.7, [CHAR_IDS.SASAMI]: 1.2 },
         [CHAR_IDS.SASAMI]:   { /* Initialized in deepCopyAffinityData */ }
     };
     
