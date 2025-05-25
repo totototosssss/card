@@ -62,72 +62,72 @@ document.addEventListener('DOMContentLoaded', () => {
     const CHAR_IDS = { NYAMA: "nyama", NANKU: "nanku", SHIROCHAN: "shirochan", YUUMARU: "yuumaru", SASAMI: "sasami" };
 
     const CHARACTERS = {
-        [CHAR_IDS.NYAMA]: { id: CHAR_IDS.NYAMA, displayName: "にゃま", colorClass: "char-nyama", icon: "fas fa-cat", sampleImage: "nyama_art.png", 
+        [CHAR_IDS.NYAMA]: { id: CHAR_IDS.NYAMA, displayName: "にゃま", colorClass: "char-nyama", icon: "fas fa-cat", sampleImage: "stone.png", 
             abilities: [
                 { 
                     name: "にゃまトリッキー！", 
-                    dialogue: "ふふん、この場の空気、変えちゃう♪ どうなるかは…お楽しみ！", 
+                    dialogue: "ふふん、この場の空気、変えちゃう♪", 
                     effectType: "nyama_trickster",
                     description: "手札左2枚の相性を一時的にランダム変更!(良化/悪化)", icon: "fas fa-random" 
                 },
                 { 
                     name: "応用は効くやん笑", 
-                    dialogue: "スコアは欲しいけど…ちょっと嫌われちゃうかもにゃん…えへっ！", 
+                    dialogue: "スコアは欲しいけど…", 
                     effectType: "nyama_affinity_debuff", baseValue: 10, 
-                    description: "コア+10, 全員との結合強度を永続悪化(中)", 
+                    description: "コア+10, 全員との結合強度を永続悪化", 
                     icon: "fas fa-handshake-slash" 
                 }
             ]},
-        [CHAR_IDS.NANKU]: { id: CHAR_IDS.NANKU, displayName: "なんく", colorClass: "char-nanku", icon: "fas fa-glasses", sampleImage: "nanku_art.png",
+        [CHAR_IDS.NANKU]: { id: CHAR_IDS.NANKU, displayName: "なんく", colorClass: "char-nanku", icon: "fas fa-glasses", sampleImage: "stone.png",
             abilities: [
                 { 
-                    name: "論理的XORシフト", 
-                    dialogue: "論理演算…フフ、予測不能なシフトをくれてやろう。", 
+                    name: "インキャに出来ること", 
+                    dialogue: "XORします", 
                     effect: (num) => num ^ (1 << (Math.floor(Math.random()*4)+1)), 
                     description: "コア XOR (2,4,8,16のどれか)", 
                     icon: "fas fa-shuffle" 
                 },
                 { 
-                    name: "最適化ルーチン", 
-                    dialogue: "現状を分析し、最適な調整を施す。", 
+                    name: "なんでや", 
+                    dialogue: "調整を施す", 
                     effect: (num) => {
-                        if (num < 15) return num + 6;
-                        if (num > 40) return num - 4;
+                        if (num < 15) return num + 8;
+                        if (num > 40) return num - 15;
                         return num + 3;
                     }, 
-                    description: "コア<15なら+6, >40なら-4, 他+3", 
+                    description: "コア<15なら+8, >40なら-15, 他+3", 
                     icon: "fas fa-chart-line" 
                 }
             ]},
-        [CHAR_IDS.SHIROCHAN]: { id: CHAR_IDS.SHIROCHAN, displayName: "しろちゃん", colorClass: "char-shirochan", icon: "fas fa-shield-heart", sampleImage: "shirochan_art.png",
+        [CHAR_IDS.SHIROCHAN]: { id: CHAR_IDS.SHIROCHAN, displayName: "しろちゃん", colorClass: "char-shirochan", icon: "fas fa-shield-heart", sampleImage: "stone.png",
             abilities: [
                 { 
-                    name: "漢検はゴミ！", 
-                    dialogue: "漢検なんて…時間の無駄ですわ！全てを無に還しましょう！ …あら、これは…奇跡？", 
+                    name: "予備試験受けます!", 
+                    dialogue: "んー。上振れ引けるかな?", 
                     effectType: "shirochan_gamble", 
                     description: "コア0 (0.01%でx100)", 
                     icon: "fas fa-dumpster-fire" 
                 },
                 { 
-                    name: "絶対純粋領域", 
-                    dialogue: "私の周囲では、いかなる負の力も許しませんわ！", 
+                    name: "漢検はゴミ！", 
+                    dialogue: "1人で数ターン気持ちよくなろう!", 
                     effectType: "shirochan_barrier", baseValue: 4,
                     description: "コア+4, 次ターン左2枚の負相性無効", 
                     icon: "fas fa-bahai" 
                 }
             ]},
-        [CHAR_IDS.YUUMARU]: { id: CHAR_IDS.YUUMARU, displayName: "ゆーまる", colorClass: "char-yuumaru", icon: "fas fa-ghost", sampleImage: "yuumaru_art.png",
+        [CHAR_IDS.YUUMARU]: { id: CHAR_IDS.YUUMARU, displayName: "ゆーまる", colorClass: "char-yuumaru", icon: "fas fa-ghost", sampleImage: "stone.png",
             abilities: [
                 { 
-                    name: "ファントム・ルーレット", 
-                    dialogue: "どっちが出るかな、どっちが出るかな～♪ 天国か地獄か…くふふっ", 
+                    name: "中卒ルーレット", 
+                    dialogue: "適当", 
                     effectType: "yuumaru_roulette", 
                     description: "50%コア+12, 40%コア-6, 10%コア=13", 
                     icon: "fas fa-dharmachakra" 
                 },
                 { 
-                    name: "魂の気まぐれリンク", 
-                    dialogue: "ねぇねぇ、あのカードとちょっとだけシンクロしちゃうかも～？良いことになるか、悪いことになるか…♪", 
+                    name: "魂の気まぐれ", 
+                    dialogue: "シンクロしちゃうかも～？", 
                     effectType: "yuumaru_affinity_link", 
                     description: "手札の他1枚選択、そのペアの基本相性を一時的にランダムで超強化or超弱化", 
                     icon: "fas fa-link" 
@@ -137,14 +137,14 @@ document.addEventListener('DOMContentLoaded', () => {
             abilities: [
                 { 
                     name: "絶対的魅力オーラ", 
-                    dialogue: "みんな、もっと仲良くしましょ～♪ 私のために、ね！", 
+                    dialogue: "みんな、もっと仲良くしましょ～♪ ", 
                     effectType: "sasami_affinity_buff_all", stages: 2, 
                     description: "全員との結合強度を永続2段階UP", 
                     icon: "fas fa-hands-holding-heart" 
                 },
                 { 
                     name: "管理者権限：オーバークロック", 
-                    dialogue: "ふふっ、ちょっとだけルールを書き換えちゃいますね♪ コアバリュー、限界突破！", 
+                    dialogue: "ちょっとだけルールを書き換えちゃいますね♪ 限界突破！", 
                     effect: (num) => num * (Math.floor(Math.random() * 3) + 2), 
                     description: "コアバリューをランダムに2～4倍！", 
                     icon: "fas fa-terminal" 
@@ -507,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentAffinityData[charId][CHAR_IDS.NYAMA] = Math.max(MIN_AFFINITY_MULTIPLIER, (currentAffinityData[charId][CHAR_IDS.NYAMA] || 1.0) - (AFFINITY_STAGE_VALUE * 2));
                 }
             });
-            setDialogueText("にゃま：「ふふん、スコアはもらったけど…みんなちょっと冷たいかもにゃ…」", true);
+            setDialogueText("にゃま：「ふふん、スコアはもらったけど…みんなちょっと冷たいかも…」", true);
         } else if (ability.effectType === "sasami_affinity_buff_all") {
             const stages = ability.stages || 2;
             Object.values(CHAR_IDS).forEach(charId1 => {
@@ -518,19 +518,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             });
-             setDialogueText("ささみ：「みんな、もっと仲良くしましょ～♪ 私の魅力でイチコロです！」", true);
-             // This ability itself doesn't change score directly
+            setDialogueText("ささみ：「みんな、もっと仲良くしましょ～♪」", true);
+            // This ability itself doesn't change score directly
         } else if (ability.effectType === "shirochan_gamble") {
             if (Math.random() < 0.0001) { 
                 newValue = oldValue * 100; 
-                setDialogueText("しろちゃん：「奇跡ですの！？力が…力が漲りますわーーーっ！！」", true);
+                setDialogueText("しろちゃん：「俺の実力では受かるはずがないのに！奇跡ですの！？力が…力が漲りますわーーーっ！！」", true);
             } else {
                 newValue = 0;
             }
         } else if (ability.effectType === "shirochan_barrier") {
             newValue = oldValue + ability.baseValue;
             temporaryAffinityEffect = { turnsRemaining: 2, type: 'ignore_negative' }; 
-            setDialogueText("しろちゃん：「聖なる光が、不和を打ち消します！」", true);
+            setDialogueText("しろちゃん：「不和を打ち消します！」", true);
         } else if (ability.effectType === "yuumaru_roulette") {
             const randAction = Math.random();
             if (randAction < 0.5) newValue = oldValue + 12;
@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentMainNumber = Math.max(0, Math.round(oldValue + effectValueChange));
             
         if (comboDebuffAppliedThisTurn && dialogueTextElement) {
-             setTimeout(()=> setDialogueText("しろちゃん：「（な、なんだか今日は本調子じゃありませんわ…にゃんて…）」", true), 100);
+             setTimeout(()=> setDialogueText("しろちゃん：「（な、なんだか今日は本調子じゃありませんわ）←当然の帰結」", true), 100);
         }
 
         updateMainNumberDisplay(oldValue, currentMainNumber);
@@ -689,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
             temporaryAffinityEffect.turnsRemaining--;
             if (temporaryAffinityEffect.turnsRemaining <= 0) {
                 temporaryAffinityEffect = null;
-                setDialogueText("しろちゃん：「純粋領域の効果が終了しました…」", true);
+                setDialogueText("しろちゃん：「効果が終了しました…」", true);
             }
         }
         if (temporaryAffinityLink) {
@@ -699,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentAffinityData[temporaryAffinityLink.card1Id][temporaryAffinityLink.partnerId] = temporaryAffinityLink.originalMultiplierC1P;
                     currentAffinityData[temporaryAffinityLink.partnerId][temporaryAffinityLink.card1Id] = temporaryAffinityLink.originalMultiplierPC1;
                 }
-                setDialogueText("ゆーまる：「気まぐれリンクの効果が切れたみたい～」", true);
+                setDialogueText("ゆーまる：「効果が切れたみたい～」", true);
                 temporaryAffinityLink = null;
             }
         }
@@ -834,7 +834,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     : 1.0);
 
         if (temporaryAffinityEffect && temporaryAffinityEffect.type === 'ignore_negative' && activeMultiplier < 1.0) {
-            affinityMessage = `<i class="fas fa-shield-alt"></i> しろちゃんの純粋領域！悪い相性を無効化！ (効果x1.0)`;
+            affinityMessage = `<i class="fas fa-shield-alt"></i> しろちゃんの悪い相性を無効化！? (効果x1.0)`;
             activeMultiplier = 1.0;
             if (affinityStatusElement) affinityStatusElement.classList.add('positive'); 
         } else if (temporaryAffinityLink && temporaryAffinityLink.turnsRemaining > 0 && 
@@ -938,7 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getRankInfoByScore(finalScore) { 
         let rankInfo = { title: "評価中...", message: "お疲れ様でした！", icon: "fas fa-question-circle", cssClass: "d" }; 
-        if (finalScore >= 60) { 
+        if (finalScore >= 100) { 
             rankInfo = { title: "中毒お疲れ様です🤡", message: "このスコア…あなたの人生、このゲームに捧げましたね？真のネクサス・コア・マスター…いや、コアそのものだ！", icon: 'fas fa-infinity', cssClass: 'godlike' };
         } else if (finalScore >= 45) { 
             rankInfo = { title: "コアの錬金術師", message: "驚異的！あなたはコアバリューを自由自在に操る天才錬金術師ですね！", icon: 'fas fa-flask-potion', cssClass: 'ss' };
