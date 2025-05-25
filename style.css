@@ -1,51 +1,51 @@
-/* style.css - Nexus Core Photonic Theme */
+/* style.css - Nexus Core Genesis Theme */
 :root {
     --font-body: 'M PLUS Rounded 1c', sans-serif;
     --font-ui: 'Poppins', sans-serif;
     --font-display: 'Orbitron', var(--font-ui);
-    --color-bg-deep-space: #0a0c17;
+    --color-bg-deep-space: #0c0a18;
     --color-bg-nexus-blue: #0e1124; 
     --color-bg-card-surface: #1f1c33; 
     --color-bg-interactive: #2c284d;
-    --color-glass-border: rgba(110, 130, 190, 0.18); /* Slightly more subtle */
+    --color-glass-border: rgba(110, 130, 190, 0.2);
     --color-modal-bg: rgba(15, 18, 38, 0.97); 
-    --text-primary: #f0f4f8; /* Brighter primary text */
+    --text-primary: #eef2ff; 
     --text-secondary: #b0b8d0; 
-    --text-tertiary: #7f8aa6; /* Adjusted for better contrast */
+    --text-tertiary: #718096;
     --text-accent-glow: #809fff; 
     --text-on-accent-button: #ffffff;
 
-    --color-accent-primary: #7c3aed; /* Vibrant Violet */
-    --color-accent-primary-rgb: 124, 58, 237;
-    --color-accent-secondary: #f59e0b; /* Amber */
-    --color-accent-tertiary: #db2777; /* Fuchsia */
+    --color-accent-primary: #6c63ff; 
+    --color-accent-primary-rgb: 108, 99, 255;
+    --color-accent-secondary: #f9a826; 
+    --color-accent-tertiary: #ef476f; 
     
-    --color-correct: #059669; /* Emerald */
-    --color-wrong: #ef4444; /* Red */
+    --color-correct: #07c494; 
+    --color-wrong: #ff4769; 
     
     --color-border-strong: #4a5568; 
     --color-border-medium: #2d3748; 
     --color-border-light: #1a202c;  
 
-    --shadow-xs: 0 1px 2px rgba(0,0,0,0.06);
-    --shadow-sm: 0 2px 6px rgba(0,0,0,0.08);
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-sm: 0 2px 6px rgba(0,0,0,0.07);
     --shadow-md: 0 5px 15px rgba(0,0,0,0.1);
     --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
     --shadow-xl: 0 15px 40px rgba(0,0,0,0.15);
 
-    /* Score Tier Colors & Glows - Refined */
-    --score-color-negative: #fca5a5; /* Light Red */
-    --score-shadow-negative: 0 0 8px #ef4444, 0 0 12px #ef4444;
+    /* Score Tier Colors & Glows */
+    --score-color-negative: #ff4d6a; 
+    --score-shadow-negative: 0 0 10px #ff4d6a, 0 0 18px #ff4d6a;
     --score-color-0-9: var(--accent-yellow);
-    --score-shadow-0-9: 0 0 7px var(--accent-yellow), 0 0 10px rgba(253,224,71,0.5);
-    --score-color-10-19: #6ee7b7; /* Light Emerald */
-    --score-shadow-10-19: 0 0 9px #34d399, 0 0 13px rgba(52,211,153,0.5);
-    --score-color-20-29: #60a5fa; /* Light Blue */
-    --score-shadow-20-29: 0 0 11px #3b82f6, 0 0 16px rgba(59,130,246,0.5);
+    --score-shadow-0-9: 0 0 8px var(--accent-yellow), 0 0 12px rgba(255,243,82,0.6);
+    --score-color-10-19: var(--accent-lime);
+    --score-shadow-10-19: 0 0 10px var(--accent-lime), 0 0 15px rgba(57,255,20,0.6);
+    --score-color-20-29: var(--accent-cyan);
+    --score-shadow-20-29: 0 0 12px var(--accent-cyan), 0 0 18px rgba(0,246,255,0.6);
     --score-color-30-39: var(--accent-orange);
-    --score-shadow-30-39: 0 0 13px var(--accent-orange), 0 0 18px rgba(251,146,60,0.5);
+    --score-shadow-30-39: 0 0 14px var(--accent-orange), 0 0 20px rgba(255,140,44,0.6);
     --score-color-40plus: var(--accent-magenta);
-    --score-shadow-40plus: 0 0 15px var(--accent-magenta), 0 0 22px rgba(255,0,255,0.5), 0 0 30px rgba(255,0,255,0.3);
+    --score-shadow-40plus: 0 0 16px var(--accent-magenta), 0 0 25px rgba(255,0,255,0.6), 0 0 35px rgba(255,0,255,0.4);
     
     --color-rank-godlike-primary: var(--accent-magenta);
     --color-rank-godlike-secondary: var(--accent-cyan);
@@ -71,10 +71,18 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 html { font-size: 16px; height: 100%; }
-body { font-family: var(--font-family-body); background-color: var(--color-bg-deep-space); color: var(--text-primary); display: flex; justify-content: center; align-items: center; min-height: 100%; padding: 16px; overflow: hidden; perspective: 1800px; }
+body { font-family: var(--font-body); background-color: var(--color-bg-deep-space); color: var(--text-primary); display: flex; justify-content: center; align-items: center; min-height: 100%; padding: 16px; overflow: hidden; perspective: 1800px; }
 .game-viewport { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-.game-background-nexus { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--color-bg-nexus-blue); z-index: -1; }
-.pre-game-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(10, 12, 23, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 1; transition: opacity 0.5s var(--ease-out-cubic); }
+.game-background-nexus { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--color-bg-nexus-blue); z-index: -1; 
+    background-image: 
+        radial-gradient(circle at 15% 25%, rgba(var(--accent-primary-rgb), 0.06) 0%, transparent 35%),
+        radial-gradient(circle at 85% 65%, rgba(var(--accent-tertiary-rgb, 236, 72, 153), 0.05) 0%, transparent 30%);
+    animation: subtleBgRotate 60s linear infinite alternate;
+}
+@keyframes subtleBgRotate { 0% { transform: rotate(0deg) scale(1.5); } 100% { transform: rotate(360deg) scale(1.5); } }
+
+
+.pre-game-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(10, 12, 23, 0.97); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 1; transition: opacity 0.5s var(--ease-out-cubic); }
 .pre-game-screen.hidden { opacity: 0; pointer-events: none; }
 .pre-game-content { background-color: var(--color-bg-card-surface); padding: calc(var(--spacing-base) * 4) calc(var(--spacing-base) * 5); border-radius: var(--border-radius-xl); box-shadow: var(--shadow-xl); border: 1px solid var(--color-glass-border); text-align: center; max-width: 500px; width: 90%; color: var(--text-primary); }
 .pre-game-content h2 { font-family: var(--font-display); color: var(--text-accent-glow); font-size: 1.6rem; margin-bottom: calc(var(--spacing-base) * 3); text-shadow: 0 0 10px var(--text-accent-glow); }
@@ -131,30 +139,29 @@ body { font-family: var(--font-family-body); background-color: var(--color-bg-de
 .affinity-status.negative { background: rgba(var(--accent-red-rgb,255,59,95), 0.15); border: 1px solid rgba(var(--accent-red-rgb),0.4); color: var(--accent-red); text-shadow: 0 0 3px rgba(var(--accent-red-rgb), 0.5);}
 .affinity-status i { margin-right: 6px; }
 
-/* Card Styling - Nexus Core Genesis */
 .card { width: var(--card-width); height: var(--card-height); border-radius: var(--card-border-radius); position: relative; cursor: pointer; transition: transform 0.45s var(--ease-out-expo), box-shadow 0.45s var(--ease-out-expo); transform-style: preserve-3d; flex-shrink: 0; margin: 0 5px; }
 .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.7s var(--ease-out-back-strong); transform-style: preserve-3d; border-radius: var(--card-border-radius); box-shadow: var(--card-shadow); overflow: hidden; border: var(--card-border); }
 .card-front, .card-back-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: var(--card-border-radius); display: flex; flex-direction: column; }
 .card-front { background: linear-gradient(170deg, var(--color-bg-card-surface) 0%, #222b45 100%); color: var(--text-primary); padding: 10px; justify-content: space-between; }
-.card-header { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid rgba(120,150,220,0.1); }
+.card-header { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px; padding-bottom: 3px; border-bottom: 1px solid rgba(120,150,220,0.1); }
 .card-name { font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700; color: var(--text-primary); text-shadow: 0 0 5px var(--text-accent-glow); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-grow: 1; }
 .card-char-icon { font-size: 0.9rem; color: var(--text-accent-glow); opacity: 0.9; }
-.card-art { width: 100%; height: 60px; background-color: rgba(10,15,30,0.8); border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: center; align-items: center; color: var(--text-secondary); font-size: 0.6rem; border: 1px dashed var(--color-glass-border); overflow: hidden; }
+.card-art { width: 100%; height: 55px; background-color: rgba(10,15,30,0.8); border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: center; align-items: center; color: var(--text-secondary); font-size: 0.6rem; border: 1px dashed var(--color-glass-border); overflow: hidden; }
 .card-art img { width: 100%; height: 100%; object-fit: cover; }
 .card-art .art-placeholder-text { font-style: italic; opacity: 0.7; font-size: 0.8em;}
 .card-abilities-section { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-around; overflow-y: auto; gap: 3px; scrollbar-width: thin; scrollbar-color: var(--text-accent-glow) transparent;}
-.ability-slot { padding: 3px 4px; border-radius: 5px; background: rgba(0,0,0,0.3); border-left: 3px solid transparent; transition: border-left-color 0.2s ease, background-color 0.2s ease; }
-.ability-slot:hover { background: rgba(var(--accent-cyan-rgb), 0.2); border-left-color: var(--accent-cyan); }
+.ability-slot { padding: 3px 4px; border-radius: 5px; background: rgba(0,0,0,0.25); border-left: 3px solid transparent; transition: border-left-color 0.2s ease, background-color 0.2s ease; }
+.ability-slot:hover { background: rgba(var(--accent-cyan-rgb), 0.15); border-left-color: var(--accent-cyan); }
 .ability-header { display: flex; align-items: center; margin-bottom: 2px; }
-.ability-icon { font-size: 0.7em; margin-right: 5px; color: var(--accent-yellow); opacity: 0.9; width: 12px; text-align: center; }
+.ability-icon { font-size: 0.65em; margin-right: 5px; color: var(--accent-yellow); opacity: 0.9; width: 12px; text-align: center; }
 .ability-name { font-family: var(--font-ui); font-size: 0.62rem; font-weight: 600; color: var(--accent-cyan); flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ability-description { font-size: 0.55rem; color: var(--text-secondary); margin-bottom: 1px; padding-left: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .ability-dialogue { font-size: 0.52rem; color: var(--text-tertiary); font-style: italic; opacity: 0.8; white-space: normal; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; padding-left: 17px; }
-.card.char-sasami-rare .card-front { background: linear-gradient(160deg, var(--color-sasami-bg-start), var(--color-sasami-bg-end)); border: 1px solid var(--color-sasami-border); box-shadow: 0 0 15px var(--color-sasami-glow), 0 0 25px var(--color-sasami-glow), var(--card-shadow); color: var(--color-sasami-text); }
-.card.char-sasami-rare .card-name { color: var(--color-sasami-text); text-shadow: 0 0 6px var(--color-sasami-accent); }
+.card.char-sasami-rare .card-front { background: linear-gradient(160deg, var(--color-sasami-bg-start), var(--color-sasami-bg-end)); border: 1px solid var(--color-sasami-border); box-shadow: 0 0 15px var(--color-sasami-glow), 0 0 25px var(--color-sasami-glow); }
+.card.char-sasami-rare .card-name { color: var(--color-sasami-text); text-shadow: 0 0 8px var(--color-sasami-accent); }
 .card.char-sasami-rare .card-char-icon { color: var(--color-sasami-accent); }
-.card.char-sasami-rare .ability-slot { background: rgba(var(--color-sasami-accent-rgb, 218,112,214), 0.15); }
-.card.char-sasami-rare .ability-slot:hover { background: rgba(var(--color-sasami-accent-rgb), 0.25); border-left-color: var(--color-sasami-accent); }
+.card.char-sasami-rare .ability-slot { background: rgba(var(--sasami-accent-rgb, 218,112,214), 0.15); } /* Define --sasami-accent-rgb if needed */
+.card.char-sasami-rare .ability-slot:hover { background: rgba(var(--sasami-accent-rgb), 0.25); border-left-color: var(--color-sasami-accent); }
 .card.char-sasami-rare .ability-name { color: var(--color-sasami-accent); }
 .card.char-sasami-rare .ability-icon { color: var(--color-sasami-accent); }
 
@@ -175,7 +182,8 @@ body { font-family: var(--font-family-body); background-color: var(--color-bg-de
 .ability-choices button .ability-btn-desc { font-size: 0.8em; opacity: 0.7; margin-left: 5px; }
 .game-dialogue-box { background: rgba(0,0,0,0.35); border-radius: var(--card-border-radius); padding: 10px 14px; width: 100%; min-height: 50px; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: inset 0 1px 4px rgba(0,0,0,0.5); }
 #dialogue-text { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; transition: opacity var(--transition-duration) ease-in-out; }
-.dialogue-append { display: block; font-size: 0.9em; color: var(--text-tertiary); opacity: 0.8; margin-top: 4px;}
+.dialogue-append { display: block; font-size: 0.9em; color: var(--text-tertiary); margin-top: 4px; opacity: 0.8; }
+
 
 .player-actions-container { display: flex; flex-direction: column; align-items: center; gap: calc(var(--spacing-base) * 1.5); margin-top: auto; width: 100%; }
 .challenge-area { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
@@ -203,7 +211,7 @@ body { font-family: var(--font-family-body); background-color: var(--color-bg-de
 .modal-rank-title { font-family: var(--font-ui); font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
 .modal-rank-message { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px; }
 #final-score-text { font-size: 1rem; margin-bottom: 10px;}
-#final-score-value { font-weight: 700; color: var(--accent-yellow); font-size: 1.2em; }
+#final-score-text #final-score-value { font-weight: 700; color: var(--accent-yellow); font-size: 1.2em; } /* Target specific ID for result modal */
 .modal-content .restart-button, .modal-content .close-modal-button { margin-top: 10px; }
 
 .affinity-table-container { max-height: 320px; overflow-y: auto; margin-bottom: 16px; border: 1px solid var(--color-glass-border); border-radius: var(--border-radius-base); background: rgba(10,15,30,0.3); }
@@ -219,6 +227,15 @@ body { font-family: var(--font-family-body); background-color: var(--color-bg-de
 .affinity-table td .affinity-text-negative { color: var(--accent-red); }
 .affinity-table td .affinity-text-neutral { color: var(--text-tertiary); }
 .affinity-table td .affinity-icon { margin-right: 4px; font-size: 0.9em; }
+
+/* Rank specific styling in modal */
+.modal-rank-title.rank-godlike { color: var(--color-rank-godlike-primary); text-shadow: 0 0 10px var(--color-rank-godlike-secondary); }
+.modal-rank-title.rank-ss { color: var(--color-accent-red); }
+/* Add more rank-specific title colors if desired */
+.rank-icon-display.rank-godlike i { color: var(--color-rank-godlike-primary); } 
+.rank-icon-display.rank-ss i { color: var(--color-accent-red); } 
+/* Add more rank-specific icon colors if desired */
+
 
 @media (max-width: 800px) { 
     .game-container { height: auto; max-height: none; margin: 16px auto; }
@@ -239,10 +256,10 @@ body { font-family: var(--font-family-body); background-color: var(--color-bg-de
     .game-board { padding: 12px; gap: 12px; }
     .player-area-header { flex-direction: column; align-items: center; gap: 8px;}
     .area-title { font-size: 0.9rem; }
-    :root { --card-width: 90px; --card-height: 145px; --card-border-radius: 8px; } 
+    :root { --card-width: 88px; --card-height: 132px; --card-border-radius: 8px; } /* Mobile card size */
     .card-name { font-size: 0.55rem; }
-    .card-art { height: 40px; font-size: 0.5rem; }
-    .card-abilities-section { font-size: 0.5rem; gap: 2px;}
+    .card-art { height: 35px; font-size: 0.5rem; }
+    .card-abilities-section { font-size: 0.5rem; gap: 2px; }
     .ability-slot { padding: 2px 3px; }
     .ability-name { font-size: 0.52rem; }
     .ability-description, .ability-dialogue { font-size: 0.48rem; }
