@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM要素の取得 ---
     const playerHandElement = document.getElementById('player-hand');
     const playedCardZoneElement = document.getElementById('played-card-zone');
     const dialogueTextElement = document.getElementById('dialogue-text');
@@ -32,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const appContainer = document.querySelector('.app-container');
 
-    // --- グローバルゲーム状態変数 ---
     let playerHand = [];
     const MAX_HAND_SIZE = 3;
     let discardPile = [];
@@ -46,8 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastPlayedCharacterId = null; 
     let currentTurnAffinityMultiplier = 1.0;
 
-
-    // --- カードとキャラクターデータ ---
     function isPrime(num) {
         if (num <= 1) return false; if (num <= 3) return true;
         if (num % 2 === 0 || num % 3 === 0) return false;
@@ -61,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const CHAR_IDS = { NYAMA: "nyama", NANKU: "nanku", SHIROCHAN: "shirochan", YUUMARU: "yuumaru", SASAMI: "sasami" };
 
+    // ユーザー提供のCHARACTERSオブジェクトを使用
     const CHARACTERS = {
         [CHAR_IDS.NYAMA]: { id: CHAR_IDS.NYAMA, displayName: "にゃま", colorClass: "char-nyama", icon: "fas fa-cat", sampleImage: "stone.png", 
             abilities: [
@@ -126,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     icon: "fas fa-dharmachakra" 
                 },
                 { 
-                    name: "魂の気まぐれ", 
+                    name: "魂の気まぐれ", // ユーザーコードでは"魂の気まぐれリンク"だったが、効果説明から判断
                     dialogue: "シンクロしちゃうかも～？", 
                     effectType: "yuumaru_affinity_link", 
                     description: "手札の他1枚選択、そのペアの基本相性を一時的にランダムで超強化or超弱化", 
@@ -154,9 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const AFFINITY_STAGE_VALUE = 0.15; 
     const MAX_AFFINITY_MULTIPLIER = 1.8;
-    const MIN_AFFINITY_MULTIPLIER = 0.4;
+    const MIN_AFFINITY_MULTIPLIER = 0.2; // 最悪の相性の場合の最低倍率
     let currentAffinityData = {}; 
 
+    // ユーザー提供のAFFINITY_DATA_BASEを使用
     const AFFINITY_DATA_BASE = { 
         [CHAR_IDS.NYAMA]:    { [CHAR_IDS.NANKU]: 1.3, [CHAR_IDS.SHIROCHAN]: 0.2, [CHAR_IDS.YUUMARU]: 1.2, [CHAR_IDS.SASAMI]: 1.1 },
         [CHAR_IDS.NANKU]:    { [CHAR_IDS.NYAMA]: 1.3, [CHAR_IDS.SHIROCHAN]: 0.2, [CHAR_IDS.YUUMARU]: 0.7, [CHAR_IDS.SASAMI]: 1.1 },
@@ -172,23 +170,35 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!currentAffinityData[id1]) currentAffinityData[id1] = {};
             allCharIds.forEach(id2 => {
                 if (id1 === id2) return;
-                if (currentAffinityData[id1][id2] === undefined && currentAffinityData[id2] && currentAffinityData[id2][id1] !== undefined) {
-                    currentAffinityData[id1][id2] = currentAffinityData[id2][id1];
-                } else if (currentAffinityData[id1][id2] === undefined) {
-                    currentAffinityData[id1][id2] = 1.0; 
+                // 対称性を確保しつつ、未定義なら1.0（普通）をセット
+                if (currentAffinityData[id1][id2] === undefined) {
+                    if (currentAffinityData[id2] && currentAffinityData[id2][id1] !== undefined) {
+                        currentAffinityData[id1][id2] = currentAffinityData[id2][id1];
+                    } else {
+                        currentAffinityData[id1][id2] = 1.0; 
+                    }
+                }
+                // Sasamiの初期値設定を確実に行う
+                if (id1 === CHAR_IDS.SASAMI && currentAffinityData[CHAR_IDS.SASAMI][id2] === undefined) {
+                     currentAffinityData[CHAR_IDS.SASAMI][id2] = AFFINITY_DATA_BASE[CHAR_IDS.SASAMI]?.[id2] ?? 1.0;
+                }
+                 if (id2 === CHAR_IDS.SASAMI && currentAffinityData[id1][CHAR_IDS.SASAMI] === undefined) {
+                     currentAffinityData[id1][CHAR_IDS.SASAMI] = AFFINITY_DATA_BASE[id1]?.[CHAR_IDS.SASAMI] ?? 1.0;
                 }
             });
         });
-        if (!currentAffinityData[CHAR_IDS.SASAMI] || Object.keys(currentAffinityData[CHAR_IDS.SASAMI]).length < (Object.keys(CHAR_IDS).length -1) ) {
-            currentAffinityData[CHAR_IDS.SASAMI] = {};
-             Object.values(CHAR_IDS).forEach(id => {
+        // Sasamiの行が完全に初期化されているか確認
+        if (!currentAffinityData[CHAR_IDS.SASAMI] || Object.keys(currentAffinityData[CHAR_IDS.SASAMI]).length < (allCharIds.length -1) ) {
+            currentAffinityData[CHAR_IDS.SASAMI] = currentAffinityData[CHAR_IDS.SASAMI] || {};
+             allCharIds.forEach(id => {
                 if (id !== CHAR_IDS.SASAMI) {
-                    const baseVal = (AFFINITY_DATA_BASE[id] && AFFINITY_DATA_BASE[id][CHAR_IDS.SASAMI] !== undefined) 
-                                                              ? AFFINITY_DATA_BASE[id][CHAR_IDS.SASAMI] 
-                                                              : 1.0;
-                    currentAffinityData[CHAR_IDS.SASAMI][id] = baseVal;
-                    if(!currentAffinityData[id]){ currentAffinityData[id] = {}; } 
-                    currentAffinityData[id][CHAR_IDS.SASAMI] = baseVal; 
+                    if (currentAffinityData[CHAR_IDS.SASAMI][id] === undefined) {
+                        currentAffinityData[CHAR_IDS.SASAMI][id] = AFFINITY_DATA_BASE[CHAR_IDS.SASAMI]?.[id] ?? 1.0;
+                    }
+                    if (!currentAffinityData[id]) currentAffinityData[id] = {};
+                    if (currentAffinityData[id][CHAR_IDS.SASAMI] === undefined) {
+                         currentAffinityData[id][CHAR_IDS.SASAMI] = AFFINITY_DATA_BASE[id]?.[CHAR_IDS.SASAMI] ?? 1.0;
+                    }
                 }
             });
         }
@@ -207,16 +217,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (multiplier >= 1.5) return AFFINITY_DISPLAY_INFO.PERFECT;
         if (multiplier >= 1.2) return AFFINITY_DISPLAY_INFO.HIGH;
         if (multiplier > 1.0) return AFFINITY_DISPLAY_INFO.GOOD;
-        if (multiplier <= 0.6) return AFFINITY_DISPLAY_INFO.WORST;
+        if (multiplier <= 0.6) return AFFINITY_DISPLAY_INFO.WORST; // 0.2なども含む
         if (multiplier < 1.0) return AFFINITY_DISPLAY_INFO.BAD;
         return AFFINITY_DISPLAY_INFO.NEUTRAL;
     }
-
-    // Score Tier Colors (for #main-number)
+    
     const SCORE_TIERS = [
-        { limit: 40, className: 'score-tier-40plus' }, { limit: 30, className: 'score-tier-30-39' },
-        { limit: 20, className: 'score-tier-20-29' }, { limit: 10, className: 'score-tier-10-19' },
-        { limit: 0,  className: 'score-tier-0-9' },    { limit: -999, className: 'score-tier-negative' } 
+        { limit: 60, className: 'score-tier-godlike' }, // 新しい最高ランク
+        { limit: 45, className: 'score-tier-40plus' }, 
+        { limit: 30, className: 'score-tier-30-39' },
+        { limit: 20, className: 'score-tier-20-29' }, 
+        { limit: 10, className: 'score-tier-10-19' },
+        { limit: 1,  className: 'score-tier-1-9' }, // 0点と1-9点を分ける
+        { limit: 0,  className: 'score-tier-0' },   
+        { limit: -999, className: 'score-tier-negative' } 
     ];
 
     const BASE_DRAW_PROBABILITIES = {};
@@ -235,26 +249,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (reduceShirochanRateGlobal && CHAR_IDS.SHIROCHAN in currentDrawProbabilities) {
             const shirochanOriginalProb = BASE_DRAW_PROBABILITIES[CHAR_IDS.SHIROCHAN];
             const reduction = 0.05;
-            let newShiroProb = Math.max(0, shirochanOriginalProb - reduction);
+            let newShiroProb = Math.max(0.001, shirochanOriginalProb - reduction); // 最低でも0.1%は残すなど
             let actualReduction = shirochanOriginalProb - newShiroProb;
             
             currentDrawProbabilities[CHAR_IDS.SHIROCHAN] = newShiroProb;
 
-            const otherRegularChars = Object.values(CHAR_IDS).filter(id => id !== CHAR_IDS.SASAMI && id !== CHAR_IDS.SHIROCHAN);
-            if (otherRegularChars.length > 0 && actualReduction > 0) {
-                const bumpPerChar = actualReduction / otherRegularChars.length;
-                otherRegularChars.forEach(id => {
+            const otherRegularCharsToBuff = Object.values(CHAR_IDS).filter(id => id !== CHAR_IDS.SASAMI && id !== CHAR_IDS.SHIROCHAN);
+            if (otherRegularCharsToBuff.length > 0 && actualReduction > 0) {
+                const bumpPerChar = actualReduction / otherRegularCharsToBuff.length;
+                otherRegularCharsToBuff.forEach(id => {
                     currentDrawProbabilities[id] = (BASE_DRAW_PROBABILITIES[id] || 0) + bumpPerChar;
                 });
             }
             let sum = 0; Object.values(currentDrawProbabilities).forEach(p => sum += p);
-            if (sum > 0 && Math.abs(sum - 1.0) > 0.00001) { // Normalize if not summing to 1
+            if (sum > 0 && Math.abs(sum - 1.0) > 0.00001) { 
                  Object.keys(currentDrawProbabilities).forEach(k => currentDrawProbabilities[k] /= sum);
             }
         }
     }
-
-    // --- Initialize Application ---
+    
     function initializeApp() {
         if (preGameOptionsScreen) preGameOptionsScreen.style.display = 'flex';
         if (appContainer) appContainer.style.display = 'none'; 
@@ -269,12 +282,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => {
                         if(preGameOptionsScreen) preGameOptionsScreen.style.display = 'none'; 
                         if (appContainer) appContainer.style.display = 'flex'; 
-                        initializeGame(); // Start the actual game
+                        initializeGame(); 
                     }, 500); 
                 }
             });
         } else { 
-             initializeGame(); // Directly start if no pre-game screen (e.g. for testing)
+             initializeGame();
         }
     }
     
@@ -291,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
         temporaryAffinityLink = null;
         redrawUsedThisGame = false; 
         lastPlayedCharacterId = null;
-
 
         if (redrawHandButton) { 
             redrawHandButton.disabled = false;
@@ -326,64 +338,48 @@ document.addEventListener('DOMContentLoaded', () => {
         updateGameCounts();
     }
 
-    // (drawCardFromDeck, renderPlayerHand, createCardElementDOM, handleCardSelection, executeAbility, updateMainNumberDisplay, 
-    //  progressToNextTurn, challengeButton listener, redrawHandButton listener, setDialogueText, updateGameCounts, 
-    //  checkAndApplyHandAffinities, triggerGameOver, buildAffinityTable, getRankInfoByScore, animateValue, shuffleArray, randomRange,
-    //  other event listeners like restart, affinity modal toggle)
-    //  ... All these functions need to be here, complete from previous version (Turn 39) with necessary updates ...
-
     function drawCardFromDeck() {
         if (playerHand.length >= MAX_HAND_SIZE) {
             setDialogueText("手札が上限です。先にカードをプレイしてください。");
             return null;
         }
-        
         const rand = Math.random();
         let cumulativeProbability = 0;
         let drawnCharId = null;
-
         for (const charId in currentDrawProbabilities) { 
             cumulativeProbability += currentDrawProbabilities[charId];
-            if (rand < cumulativeProbability) {
-                drawnCharId = charId;
-                break;
-            }
+            if (rand < cumulativeProbability) { drawnCharId = charId; break; }
         }
-        
         if (!drawnCharId) { 
-            const characterKeys = Object.values(CHAR_IDS); // Fallback if probabilities are weird
+            const characterKeys = Object.keys(CHARACTERS); // Use keys of CHARACTERS
             drawnCharId = characterKeys[Math.floor(Math.random() * characterKeys.length)];
         }
-
         const drawnCardData = CHARACTERS[drawnCharId];
-        if (!drawnCardData) { 
-            console.error("Drawn card data not found for ID:", drawnCharId, "from CHARACTERS:", CHARACTERS);
-            return null;
-        }
+        if (!drawnCardData) { console.error("Drawn card data not found for ID:", drawnCharId); return null; }
         const newCard = { ...drawnCardData, uniqueId: `${drawnCardData.id}-${Date.now()}-${Math.random()}` }; 
-        
         playerHand.push(newCard);
-        if (drawnCardData.id === CHAR_IDS.SASAMI) {
-            setDialogueText("キラリーン！✨ 超レアカード「ささみ」を引いた！", true);
-        }
+        if (drawnCardData.id === CHAR_IDS.SASAMI) { setDialogueText("キラリーン！✨ 超レアカード「ささみ」を引いた！", true); }
         return newCard;
     }
     
-    function renderPlayerHand() {
+    function renderPlayerHand() { /* (前回とほぼ同じだが、区切り線ロジックを確実にする) */
         if (!playerHandElement) return;
         playerHandElement.innerHTML = '';
+        let separatorDrawn = false;
         playerHand.forEach((cardData, index) => {
             const cardElement = createCardElementDOM(cardData, index);
             playerHandElement.appendChild(cardElement);
-            if (index === 1 && playerHand.length === MAX_HAND_SIZE) { 
+            // 手札の左2枚と3枚目の間に区切り線 (手札が3枚の場合、2枚目(index 1)の後)
+            if (index === 1 && playerHand.length === MAX_HAND_SIZE && !separatorDrawn) { 
                 const separator = document.createElement('div');
                 separator.className = 'hand-card-separator';
                 playerHandElement.appendChild(separator);
+                separatorDrawn = true;
             }
         });
         if(handCardCountElement) handCardCountElement.textContent = playerHand.length;
         updateGameCounts();
-        currentTurnAffinityMultiplier = checkAndApplyHandAffinities(false); // Update and display current affinity for the turn
+        currentTurnAffinityMultiplier = checkAndApplyHandAffinities(false); 
     }
     
     function createCardElementDOM(cardData, handIndex = -1, isPlayedView = false) {
@@ -395,13 +391,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const cardInner = document.createElement('div');
         cardInner.className = 'card-inner';
-    
         const cardFront = document.createElement('div');
         cardFront.className = 'card-front';
         
         const artArea = `
             <div class="card-art">
-                <div class="art-placeholder-text">${cardData.displayName.substring(0,2).toUpperCase()}</div>
+                <img src="${cardData.sampleImage || 'stone.png'}" alt="${cardData.displayName}" class="card-char-image-actual">
             </div>
         `;
         
@@ -423,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cardFront.innerHTML = `
             <div class="card-header">
                 <span class="card-name">${cardData.displayName}</span>
-                <i class="${cardData.icon} card-char-icon"></i>
+                <i class="${cardData.icon} card-char-icon"></i> 
             </div>
             ${artArea}
             ${abilitiesHTML}
@@ -437,6 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cardInner.appendChild(cardBack);
         cardDiv.appendChild(cardInner);
     
+        // ★カード反転ロジック修正: 手札のカードは常に表向き。ドロー時にアニメーション
         if (handIndex !== -1 && !isPlayedView) { 
             cardDiv.dataset.handIndex = handIndex;
             cardDiv.addEventListener('click', () => handleCardSelection(handIndex));
@@ -480,13 +476,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function executeAbility(handIndex, abilityIndex) {
         if (handIndex < 0 || handIndex >= playerHand.length) return;
-
         const playedCardData = playerHand.splice(handIndex, 1)[0]; 
         if(discardPile) discardPile.push(playedCardData);
         const ability = playedCardData.abilities[abilityIndex];
 
-        // Get affinity multiplier based on the two leftmost *remaining* hand cards
-        // This call also updates the affinity display if needed, but forAbilityExecution=true suppresses that immediate display.
         currentTurnAffinityMultiplier = checkAndApplyHandAffinities(false, true); 
 
         setDialogueText(`${playedCardData.displayName}：「${ability.dialogue}」`);
@@ -495,7 +488,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let newValue = currentMainNumber;
         let effectValueChange = 0; 
 
-        // Process ability effect
         if (ability.effectType === "nyama_affinity_debuff") {
             newValue = oldValue + ability.baseValue; 
             Object.keys(CHAR_IDS).forEach(charKey => {
@@ -518,72 +510,83 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             });
-            setDialogueText("ささみ：「みんな、もっと仲良くしましょ～♪」", true);
-            // This ability itself doesn't change score directly
+             setDialogueText("ささみ：「みんな、もっと仲良くしましょ～♪ 私の魅力でイチコロです！」", true);
         } else if (ability.effectType === "shirochan_gamble") {
             if (Math.random() < 0.0001) { 
                 newValue = oldValue * 100; 
-                setDialogueText("しろちゃん：「俺の実力では受かるはずがないのに！奇跡ですの！？力が…力が漲りますわーーーっ！！」", true);
+                setDialogueText("しろちゃん：「奇跡ですの！？力が…力が漲りますわーーーっ！！」", true);
             } else {
                 newValue = 0;
             }
         } else if (ability.effectType === "shirochan_barrier") {
             newValue = oldValue + ability.baseValue;
             temporaryAffinityEffect = { turnsRemaining: 2, type: 'ignore_negative' }; 
-            setDialogueText("しろちゃん：「不和を打ち消します！」", true);
+            setDialogueText("しろちゃん：「1人で数ターン気持ちよくなろう！」", true); // セリフ変更
         } else if (ability.effectType === "yuumaru_roulette") {
             const randAction = Math.random();
             if (randAction < 0.5) newValue = oldValue + 12;
             else if (randAction < 0.9) newValue = oldValue - 6;
             else newValue = 13; 
-        } else if (ability.effectType === "nyama_trickster") {
+        } else if (ability.effectType === "nyama_trickster") { // にゃまトリッキー！
             if (playerHand.length >= 2) {
-                const c1 = playerHand[0].id;
-                const c2 = playerHand[1].id;
+                const c1Id = playerHand[0].id;
+                const c2Id = playerHand[1].id;
                 const changeType = Math.random() < 0.5 ? 'buff' : 'nerf'; 
-                const changeAmountAbs = (Math.floor(Math.random() * 2) + 2) * AFFINITY_STAGE_VALUE; 
+                const changeAmountAbs = (Math.floor(Math.random() * 2) + 1) * AFFINITY_STAGE_VALUE * 2; // 2 or 4 stages worth, more impactful
                 const changeActual = changeType === 'buff' ? changeAmountAbs : -changeAmountAbs;
                 
-                const originalC1C2 = currentAffinityData[c1]?.[c2] || 1.0;
-                const originalC2C1 = currentAffinityData[c2]?.[c1] || 1.0;
+                const originalC1C2 = currentAffinityData[c1Id]?.[c2Id] || 1.0;
+                // const originalC2C1 = currentAffinityData[c2Id]?.[c1Id] || 1.0; // Not needed for temp link on one pair
 
-                currentAffinityData[c1][c2] = Math.max(MIN_AFFINITY_MULTIPLIER, Math.min(MAX_AFFINITY_MULTIPLIER, originalC1C2 + changeActual));
-                currentAffinityData[c2][c1] = currentAffinityData[c1][c2]; 
-                
-                temporaryAffinityLink = { card1Id: c1, partnerId: c2, originalMultiplierC1P: originalC1C2, originalMultiplierPC1: originalC2C1, turnsRemaining: 2, type: 'nyama_trick' };
-                setDialogueText(`にゃま：「${CHARACTERS[c1.toUpperCase()]?.displayName || c1}と${CHARACTERS[c2.toUpperCase()]?.displayName || c2}の仲が${changeType === 'buff' ? '急接近にゃん' : 'ちょっとギクシャク…'}！？（一時的）」`, true);
-                newValue = oldValue + 1; 
+                // Temporarily modify for next affinity check this turn, or until Yuumaru's link clears it
+                temporaryAffinityLink = { 
+                    card1Id: c1Id, partnerId: c2Id, 
+                    originalMultiplierC1P: originalC1C2, 
+                    // originalMultiplierPC1: originalC2C1, // Not strictly needed if we always recalculate other way
+                    modifier: changeActual, // Store the change itself
+                    turnsRemaining: 1, // Only for the immediate next affinity check
+                    type: 'nyama_trickster_link' 
+                };
+                setDialogueText(`にゃま：「${CHARACTERS[c1Id].displayName}と${CHARACTERS[c2Id].displayName}の仲が${changeType === 'buff' ? '超イイ感じに' : '険悪ムード'}！？（一時的）」`, true);
+                newValue = oldValue + 2; // Small bonus for the trick
             } else {
-                newValue = oldValue + 2; 
-                setDialogueText("にゃま：「誰もいないから、とりあえずコア+2で我慢するにゃ…」", true);
+                newValue = oldValue + 3; 
+                setDialogueText("にゃま：「一人ぼっちだから、コア+3で場を温めるにゃ…」", true);
             }
-        } else if (ability.effectType === "yuumaru_affinity_link") {
-             if (playerHand.length > 0) { // Needs at least one card to target
-                const targetCardIndex = Math.floor(Math.random() * playerHand.length);
-                const targetCard = playerHand[targetCardIndex];
-                let partnerCard = null;
-                if (playerHand.length > 1) { // Need at least one *other* card for a pair
-                    // Attempt to find a partner from the leftmost two, that isn't the target itself
-                    if (playerHand[0].uniqueId !== targetCard.uniqueId) partnerCard = playerHand[0];
-                    else if (playerHand.length > 1 && playerHand[1].uniqueId !== targetCard.uniqueId) partnerCard = playerHand[1];
-                    else if (playerHand.length > 2 && playerHand[2].uniqueId !== targetCard.uniqueId) partnerCard = playerHand[2]; // Fallback
-                }
+        } else if (ability.effectType === "yuumaru_affinity_link") { // 魂の気まぐれ
+             if (playerHand.length >= 1) { // At least one OTHER card needed
+                const otherCards = playerHand.filter(c => c.uniqueId !== playedCardData.uniqueId); // Should be all remaining
+                if (otherCards.length > 0) {
+                    const targetCard = otherCards[Math.floor(Math.random() * otherCards.length)];
+                    let partnerForTarget = null;
+                    if (playerHand.length >= 2) { // Need a partner for the target
+                        if(playerHand[0].uniqueId === targetCard.uniqueId && playerHand.length > 1) partnerForTarget = playerHand[1];
+                        else if (playerHand[0].uniqueId !== targetCard.uniqueId) partnerForTarget = playerHand[0];
+                        // This logic for partner might need refinement if hand has only target + 1 other.
+                    }
 
-                if (targetCard && partnerCard) { // Only proceed if a distinct partner is found
-                    const linkChange = (Math.random() < 0.5 ? 0.4 : -0.4); 
-                    
-                    const originalC1P = currentAffinityData[targetCard.id]?.[partnerCard.id] || 1.0;
-                    const originalPC1 = currentAffinityData[partnerCard.id]?.[targetCard.id] || 1.0;
+                    if (targetCard && partnerForTarget) {
+                        const linkChange = (Math.random() < 0.5 ? 0.5 : -0.5); // Stronger temporary change
+                        
+                        const originalC1P = currentAffinityData[targetCard.id]?.[partnerForTarget.id] || 1.0;
+                        const originalPC1 = currentAffinityData[partnerForTarget.id]?.[targetCard.id] || 1.0;
 
-                    currentAffinityData[targetCard.id][partnerCard.id] = Math.max(MIN_AFFINITY_MULTIPLIER, Math.min(MAX_AFFINITY_MULTIPLIER, originalC1P + linkChange));
-                    currentAffinityData[partnerCard.id][targetCard.id] = currentAffinityData[targetCard.id][partnerCard.id];
-                    
-                    temporaryAffinityLink = { card1Id: targetCard.id, partnerId: partnerCard.id, originalMultiplierC1P, originalMultiplierPC1, turnsRemaining: 2, type: 'yuumaru_link' };
-                    setDialogueText(`ゆーまる：「${targetCard.displayName}と${partnerCard.displayName}の絆が${linkChange > 0 ? '超深まった' : '超こじれた'}かも～？一時的よ！」`, true);
+                        // Apply temporary visual change for affinity check
+                        temporaryAffinityLink = { 
+                            card1Id: targetCard.id, partnerId: partnerForTarget.id, 
+                            originalMultiplierC1P, originalMultiplierPC1, // Store originals to revert
+                            modifier: linkChange, 
+                            turnsRemaining: 1, // Only for the immediate next affinity check
+                            type: 'yuumaru_link_preview' // Special type to indicate it's a preview for next calc
+                        };
+                        setDialogueText(`ゆーまる：「${targetCard.displayName}と${partnerForTarget.displayName}の絆が${linkChange > 0 ? '超深まった' : '超こじれた'}…かも？（次の効果に影響）」`, true);
+                    } else {
+                         setDialogueText("ゆーまる：「リンク相手がいなーい…」", true);
+                    }
                 }
-                 newValue = oldValue + 2; 
+                 newValue = oldValue + 1; // Small base effect
             } else {
-                 newValue = oldValue + 2;
+                 newValue = oldValue + 1;
             }
         } 
         else if (typeof ability.effect === 'function') { 
@@ -591,34 +594,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         effectValueChange = newValue - oldValue;
-
-        let comboDebuffAppliedThisTurn = false;
+        
         if (playedCardData.id === CHAR_IDS.SHIROCHAN && 
-            ability.effectType !== "shirochan_gamble" && 
+            ability.name === "絶対純粋領域" && // Target specific Shirochan ability
             lastPlayedCharacterId === CHAR_IDS.NYAMA) {
             effectValueChange = Math.round(effectValueChange * 0.5); 
-            comboDebuffAppliedThisTurn = true;
+            setDialogueText("しろちゃん：「（な、なんだか今日は本調子じゃありませんわ）←当然の帰結」", true);
         }
         
-        // Apply general hand affinity multiplier from currentTurnAffinityMultiplier (set at turn start/hand update)
-        if (typeof ability.effect === 'function' && 
-            ability.effectType !== "nyama_affinity_debuff" && 
+        if (ability.effectType !== "nyama_affinity_debuff" && 
             ability.effectType !== "sasami_affinity_buff_all" &&
             ability.effectType !== "shirochan_gamble" &&
-            ability.effectType !== "yuumaru_random" && 
+            ability.effectType !== "shirochan_barrier" && // Base value applied before multiplier for this one
+            ability.effectType !== "yuumaru_roulette" &&
             ability.effectType !== "nyama_trickster" &&
             ability.effectType !== "yuumaru_affinity_link" &&
-            ability.effectType !== "shirochan_barrier" && // Barrier baseValue is not multiplied by hand affinity
             effectValueChange !== 0) { 
             effectValueChange = Math.round(effectValueChange * currentTurnAffinityMultiplier);
         }
         
         currentMainNumber = Math.max(0, Math.round(oldValue + effectValueChange));
             
-        if (comboDebuffAppliedThisTurn && dialogueTextElement) {
-             setTimeout(()=> setDialogueText("しろちゃん：「（な、なんだか今日は本調子じゃありませんわ）←当然の帰結」", true), 100);
-        }
-
         updateMainNumberDisplay(oldValue, currentMainNumber);
         lastPlayedCharacterId = playedCardData.id; 
 
@@ -689,17 +685,19 @@ document.addEventListener('DOMContentLoaded', () => {
             temporaryAffinityEffect.turnsRemaining--;
             if (temporaryAffinityEffect.turnsRemaining <= 0) {
                 temporaryAffinityEffect = null;
-                setDialogueText("しろちゃん：「効果が終了しました…」", true);
+                setDialogueText("しろちゃん：「絶対純粋領域の効果が終了しました…」", true);
             }
         }
         if (temporaryAffinityLink) {
             temporaryAffinityLink.turnsRemaining--;
             if (temporaryAffinityLink.turnsRemaining <= 0) {
-                if (currentAffinityData[temporaryAffinityLink.card1Id] && currentAffinityData[temporaryAffinityLink.partnerId]) { 
-                    currentAffinityData[temporaryAffinityLink.card1Id][temporaryAffinityLink.partnerId] = temporaryAffinityLink.originalMultiplierC1P;
-                    currentAffinityData[temporaryAffinityLink.partnerId][temporaryAffinityLink.card1Id] = temporaryAffinityLink.originalMultiplierPC1;
+                if (temporaryAffinityLink.type === 'nyama_trickster' || temporaryAffinityLink.type === 'yuumaru_link') {
+                    if (currentAffinityData[temporaryAffinityLink.card1Id] && currentAffinityData[temporaryAffinityLink.partnerId]) { 
+                        currentAffinityData[temporaryAffinityLink.card1Id][temporaryAffinityLink.partnerId] = temporaryAffinityLink.originalMultiplierC1P;
+                        currentAffinityData[temporaryAffinityLink.partnerId][temporaryAffinityLink.card1Id] = temporaryAffinityLink.originalMultiplierPC1;
+                    }
+                    setDialogueText(temporaryAffinityLink.type === 'nyama_trickster' ? "にゃま：「一時的な相性変化が元に戻ったにゃ！」" : "ゆーまる：「気まぐれリンクの効果が切れたみたい～」", true);
                 }
-                setDialogueText("ゆーまる：「効果が切れたみたい～」", true);
                 temporaryAffinityLink = null;
             }
         }
@@ -722,10 +720,10 @@ document.addEventListener('DOMContentLoaded', () => {
                            const addedCardIndex = playerHand.findIndex(card => card.uniqueId === newCard.uniqueId);
                            const newCardElementInHand = newCardElements[addedCardIndex];
                            if (newCardElementInHand) {
-                               newCardElementInHand.classList.add('drawn-animation');
+                               newCardElementInHand.classList.add('drawn-animation'); // CSSでアニメーション定義
                                setTimeout(() => {
                                    if(newCardElementInHand) newCardElementInHand.classList.remove('drawn-animation');
-                               }, 700);
+                               }, 700); // アニメーション時間と一致
                            }
                        }
                     }
@@ -834,26 +832,20 @@ document.addEventListener('DOMContentLoaded', () => {
                                     : 1.0);
 
         if (temporaryAffinityEffect && temporaryAffinityEffect.type === 'ignore_negative' && activeMultiplier < 1.0) {
-            affinityMessage = `<i class="fas fa-shield-alt"></i> しろちゃんの悪い相性を無効化！? (効果x1.0)`;
+            affinityMessage = `<i class="fas fa-shield-alt"></i> しろちゃんの絶対純粋領域により、悪い相性が無効化されました！ (効果x1.0)`;
             activeMultiplier = 1.0;
             if (affinityStatusElement) affinityStatusElement.classList.add('positive'); 
         } else if (temporaryAffinityLink && temporaryAffinityLink.turnsRemaining > 0 && 
                    ((temporaryAffinityLink.card1Id === card1Id && temporaryAffinityLink.partnerId === card2Id) ||
                     (temporaryAffinityLink.card1Id === card2Id && temporaryAffinityLink.partnerId === card1Id))) {
-            // This was intended to modify currentAffinityData directly for Yuumaru's link,
-            // but for calculating currentTurnAffinityMultiplier, it should use the modified value.
-            // The actual modification of currentAffinityData by Yuumaru happens in executeAbility.
-            // For display/calculation here, we can preview that change.
-            const tempModifiedMultiplier = Math.max(MIN_AFFINITY_MULTIPLIER, Math.min(MAX_AFFINITY_MULTIPLIER, activeMultiplier + temporaryAffinityLink.modifier));
-            affinityMessage = `ゆーまるの気まぐれリンク！ 相性x${tempModifiedMultiplier.toFixed(1)}に変動中！<br>`;
-            activeMultiplier = tempModifiedMultiplier; // Use the temporarily linked value for this turn
+            activeMultiplier = Math.max(MIN_AFFINITY_MULTIPLIER, Math.min(MAX_AFFINITY_MULTIPLIER, (currentAffinityData[temporaryAffinityLink.card1Id]?.[temporaryAffinityLink.partnerId] || 1.0) )); // Use already modified value
+            affinityMessage = `ゆーまるの気まぐれリンク！ ${CHARACTERS[temporaryAffinityLink.card1Id].displayName}と${CHARACTERS[temporaryAffinityLink.partnerId].displayName}の相性x${activeMultiplier.toFixed(1)}に変動中！`;
         }
         
         const affinityInfo = getAffinityDisplayInfo(activeMultiplier);
-        if (activeMultiplier !== 1.0 && !affinityMessage.includes("純粋領域") && !affinityMessage.includes("気まぐれリンク")) {
-             const c1Name = CHARACTERS[card1Id.toUpperCase()]?.displayName || card1Id;
-             const c2Name = CHARACTERS[card2Id.toUpperCase()]?.displayName || card2Id;
-             affinityMessage = `<i class="${affinityInfo.icon}"></i> ${c1Name} と ${c2Name}: ${affinityInfo.text} (効果x${activeMultiplier.toFixed(1)})`;
+        // Display basic affinity only if no special effect message already set it
+        if (currentAffinityData[card1Id] && CHARACTERS[card1Id] && currentAffinityData[card2Id] && CHARACTERS[card2Id] && activeMultiplier !== 1.0 && !affinityMessage.includes("純粋領域") && !affinityMessage.includes("気まぐれリンク")) {
+             affinityMessage = `<i class="${affinityInfo.icon}"></i> ${CHARACTERS[card1Id].displayName} と ${CHARACTERS[card2Id].displayName}: ${affinityInfo.text} (効果x${activeMultiplier.toFixed(1)})`;
         }
         
         if(affinityStatusElement && activeMultiplier !== 1.0) {
@@ -869,15 +861,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(affinityStatusElement) {
                     affinityStatusElement.style.opacity = '0'; 
                     setTimeout(()=> {
-                        affinityStatusElement.style.display = 'none';
-                        affinityStatusElement.innerHTML = '';
-                        affinityStatusElement.style.opacity = '1'; 
-                        affinityStatusElement.classList.remove('visible', 'positive', 'negative');
+                        if(affinityStatusElement) {
+                             affinityStatusElement.style.display = 'none';
+                             affinityStatusElement.innerHTML = '';
+                             affinityStatusElement.style.opacity = '1'; 
+                             affinityStatusElement.classList.remove('visible', 'positive', 'negative');
+                        }
                     }, 300); 
                 }
             }, 4000);
-        } else if (!affinityMessage && !forAbilityExecution) { 
-             if(affinityStatusElement) affinityStatusElement.style.display = 'none';
+        } else if (!affinityMessage && !forAbilityExecution && affinityStatusElement) { 
+             affinityStatusElement.style.display = 'none';
         }
         return activeMultiplier; 
     }
@@ -940,24 +934,24 @@ document.addEventListener('DOMContentLoaded', () => {
         let rankInfo = { title: "評価中...", message: "お疲れ様でした！", icon: "fas fa-question-circle", cssClass: "d" }; 
         if (finalScore >= 100) { 
             rankInfo = { title: "中毒お疲れ様です🤡", message: "このスコア…あなたの人生、このゲームに捧げましたね？真のネクサス・コア・マスター…いや、コアそのものだ！", icon: 'fas fa-infinity', cssClass: 'godlike' };
-        } else if (finalScore >= 45) { 
+        } else if (finalScore >= 75) { 
             rankInfo = { title: "コアの錬金術師", message: "驚異的！あなたはコアバリューを自由自在に操る天才錬金術師ですね！", icon: 'fas fa-flask-potion', cssClass: 'ss' };
-        } else if (finalScore >= 30) { 
+        } else if (finalScore >= 50) { 
             rankInfo = { title: "戦略の魔術師", message: "見事な戦略と強運！あなたはカードゲームの申し子ですね！", icon: 'fas fa-crown', cssClass: 's' };
-        } else if (finalScore >= 20) { 
+        } else if (finalScore >= 30) { 
             rankInfo = { title: "エリート・シナジスト", message: "素晴らしい戦績です！相乗効果を最大限に引き出しましたね！", icon: 'fas fa-puzzle-piece', cssClass: 'a_plus' };
-        } else if (finalScore >= 10) { 
+        } else if (finalScore >= 15) { 
             rankInfo = { title: "かなりの策士", message: "良い結果ですね！数々の困難を乗り越え、確実に成果を出しました！", icon: 'fas fa-lightbulb', cssClass: 'a' };
-        } else if (finalScore >= 1) { 
+        } else if (finalScore >= 5) { 
             rankInfo = { title: "堅実派？それとも…？", message: "プラススコア達成！安定した運用、見事です。次なる飛躍に期待！…もしかして、めちゃくちゃ慎重だっただけでは？", icon: 'fas fa-shield-alt', cssClass: 'b_plus' };
+        } else if (finalScore > 0) { 
+            rankInfo = { title: "かろうじてプラス", message: "ギリギリプラス！でも勝ちは勝ち！…ですよね？次こそ大勝を！", icon: 'fas fa-thumbs-up', cssClass: 'b' };
         } else if (finalScore === 0) { 
-            rankInfo = { title: "結果、プラマイゼロの人", message: "おっと、スコアは原点回帰！まるで何も起きなかったかのよう…ある意味平和ですが、次は爪痕を！いや、むしろゼロは才能？", icon: 'fas fa-recycle', cssClass: 'b' };
-        } else if (finalScore >= -9) { 
-            rankInfo = { title: "ちょっぴり空回り気味？", message: "うーん、今回は運に見放されたかな？大丈夫、そんな日もあります。次こそは大当たりを！…って、パチンコじゃないんですよ？", icon: 'fas fa-compact-disc fa-spin', cssClass: 'c_plus' };
-        } else if (finalScore >= -19) { 
-            rankInfo = { title: "大胆不敵な空振り王", message: "果敢に攻めた結果のマイナス…その心意気や良し！ただし、バットにはボールを当てましょうね。話はそれからだ。", icon: 'fas fa-baseball-ball', cssClass: 'c' }; 
-        } else if (finalScore >= -29) { 
-            rankInfo = { title: "逆神様、本日も絶好調", message: "ここまでくると逆に清々しい！あなたが選ばなかった方が常に正解なのでは…？その能力、別のゲームで活かせるかも！本当に！", icon: 'fas fa-poo', cssClass: 'd_plus' };
+            rankInfo = { title: "結果、プラマイゼロの人", message: "おっと、スコアは原点回帰！まるで何も起きなかったかのよう…ある意味平和ですが、次は爪痕を！いや、むしろゼロは才能？", icon: 'fas fa-recycle', cssClass: 'c_plus' };
+        } else if (finalScore >= -10) { 
+            rankInfo = { title: "ちょっぴり空回り気味？", message: "うーん、今回は運に見放されたかな？大丈夫、そんな日もあります。次こそは大当たりを！…って、パチンコじゃないんですよ？", icon: 'fas fa-compact-disc fa-spin', cssClass: 'c' };
+        } else if (finalScore >= -20) { 
+            rankInfo = { title: "大胆不敵な空振り王", message: "果敢に攻めた結果のマイナス…その心意気や良し！ただし、バットにはボールを当てましょうね。話はそれからだ。", icon: 'fas fa-baseball-bat-ball', cssClass: 'd_plus' }; 
         } else {  
             rankInfo = { title: "破滅的エンターテイナー", message: "…素晴らしいマイナススコア、記録更新おめでとうございます（白目）。あなたは世界の終わりを見届けたのですね…。さぁ、転生しましょう！次のゲームで！", icon: 'fas fa-theater-masks', cssClass: 'd' }; 
         }
@@ -1000,7 +994,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-
-    // Start the app by showing pre-game options
+    
     initializeApp();
 });
