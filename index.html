@@ -3,64 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character Card Game - Foundation</title>
+    <title>NexusCore Card Game - Dynamix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Poppins:wght@500;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Poppins:wght@500;600;700;800&family=Orbitron:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-background"></div>
-    <div class="game-container">
-        <header class="game-header">
-            <h1 class="game-title">Character Card Battle</h1>
-            <div class="game-stats">
-                <div class="turn-counter">Turn: <span id="turn-number">1</span> / <span id="max-turns">5</span></div>
-                <div class="main-number-display">Number: <span id="main-number">0</span></div>
-            </div>
-        </header>
-
-        <main class="game-board">
-            <div class="player-area">
-                <h2>Your Hand</h2>
-                <div id="player-hand" class="hand-area">
-                    {/* Cards will be dynamically inserted here by JS */}
+    <div class="game-viewport">
+        <div class="game-background-nexus"></div>
+        <div id="pre-game-options-screen" class="pre-game-screen">
+            <div class="pre-game-content">
+                <h2>ゲーム開始前設定</h2>
+                <div class="option-group">
+                    <input type="checkbox" id="lower-shirochan-rate-checkbox">
+                    <label for="lower-shirochan-rate-checkbox">
+                        「しろちゃん」カードの出現率を 5%減少 させます。<br>
+                        その代わり、初期コアバリューが +10 で開始されます。
+                        <span class="option-detail">（運命を少しだけ操作しますか…？）</span>
+                    </label>
                 </div>
-            </div>
-
-            <div class="action-area">
-                <div id="played-card-zone" class="played-card-zone">
-                    {/* Played card and ability choices will appear here */}
-                </div>
-                <div id="game-dialogue" class="game-dialogue-box">
-                    <p id="dialogue-text">ゲーム開始！</p>
-                </div>
-                <button id="challenge-button" class="action-button challenge-button">
-                    <i class="fas fa-dice-d20"></i> チャレンジ！
+                <button id="start-game-with-options-button" class="game-button start-game-main-button">
+                    <i class="fas fa-play-circle"></i> ゲーム開始
                 </button>
-            </div>
-
-            <div class="deck-discard-area">
-                <div class="deck-pile">
-                    <div class="card-back">山札</div>
-                    <span id="deck-count">X</span>
-                </div>
-                <div class="discard-pile">
-                    <div class="card-back disabled">捨て札</div>
-                    <span id="discard-count">0</span>
-                </div>
-            </div>
-        </main>
-        
-        <div id="game-over-modal" class="modal" style="display:none;">
-            <div class="modal-content">
-                <h2 id="game-over-title">ゲーム終了！</h2>
-                <p id="game-over-message">最終スコア（数字）：<span id="final-score-value">0</span></p>
-                <button id="restart-game-button" class="action-button">もう一度遊ぶ</button>
             </div>
         </div>
 
+        <div class="app-container" style="display:none;">
+            <header class="game-header">
+                <h1 class="game-title">NEXUS CORE <span class="title-accent">DYNAMIX</span></h1>
+                <div class="game-stats">
+                    <div class="turn-counter"><i class="fas fa-history"></i> Turn: <span id="turn-number">1</span>/<span id="max-turns">10</span></div>
+                    <div class="main-number-display"><i class="fas fa-atom"></i> Core Value: <span id="main-number" class="score-tier-10-19">0</span></div>
+                </div>
+            </header>
+
+            <main class="game-board">
+                <div class="player-area">
+                    <div class="player-area-header">
+                        <h2 class="area-title">YOUR HAND (<span id="hand-card-count">0</span>/3)</h2>
+                        <button id="affinity-check-button" class="game-button affinity-button small-button">
+                            <i class="fas fa-link"></i> 結合強度
+                        </button>
+                    </div>
+                    <div id="player-hand" class="hand-area">
+                    </div>
+                    <div id="affinity-status-area" class="affinity-status">
+                    </div>
+                </div>
+
+                <div class="action-zone">
+                    <div id="played-card-zone" class="played-card-zone">
+                        <p class="zone-placeholder">プレイするカードを選択</p>
+                    </div>
+                    <div id="ability-choice-buttons" class="ability-choices" style="display: none;">
+                    </div>
+                    <div id="game-dialogue" class="game-dialogue-box">
+                        <p id="dialogue-text">オプションを選択してゲームを開始してください。</p>
+                    </div>
+                    <div class="player-actions-container">
+                        <button id="challenge-button" class="game-button challenge-button">
+                            <i class="fas fa-dice-d20"></i> チャレンジ
+                        </button>
+                        <button id="redraw-hand-button" class="game-button redraw-button">
+                            <i class="fas fa-random"></i> 手札再構築 (-10)
+                        </button>
+                    </div>
+                     <p id="challenge-info" class="challenge-info-text">（運命のダイスロール！ / 手札に賭ける？）</p>
+                </div>
+
+                <div class="deck-discard-area">
+                    <div class="deck-pile card-pile">
+                        <div class="card-back-design">
+                            <span>DECK</span>
+                            <i class="fas fa-infinity"></i>
+                        </div>
+                        <div class="pile-count" id="deck-count">&infin;</div>
+                    </div>
+                    <div class="discard-pile card-pile">
+                        <div class="card-back-design disabled">
+                            <span>DISCARD</span>
+                        </div>
+                        <div class="pile-count" id="discard-count">0</div>
+                    </div>
+                </div>
+            </main>
+            
+            <div id="game-over-modal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <h2 id="game-over-title">ゲーム終了</h2>
+                    <p id="final-score-text">最終コアバリュー: <span id="final-score-value">0</span></p>
+                    <div id="rank-icon-display" class="rank-icon-display"></div>
+                    <p id="rank-title-display" class="modal-rank-title"></p>
+                    <p id="rank-message-display" class="modal-rank-message"></p>
+                    <button id="restart-game-button" class="game-button restart-button">
+                        <i class="fas fa-redo"></i> もう一度プレイ
+                    </button>
+                </div>
+            </div>
+
+            <div id="affinity-modal" class="modal affinity-modal-view" style="display:none;">
+                <div class="modal-content large-modal">
+                    <h2 class="modal-title">キャラクター結合強度</h2>
+                    <div id="affinity-table-container" class="affinity-table-container">
+                    </div>
+                    <button id="close-affinity-modal" class="game-button close-modal-button">
+                        <i class="fas fa-times"></i> 閉じる
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
